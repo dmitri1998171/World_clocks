@@ -5,6 +5,10 @@
 #include <ctime>
 #include <GLUT/glut.h>
 
+#include "imgui.h"
+#include "imgui_impl_glut.h"
+#include "imgui_impl_opengl2.h"
+
 #define DEGREES_PER_MINUTE 6
 #define DEGREES_PER_HOUR 30
 #define PI 3.141592
@@ -25,6 +29,13 @@ int timer_var = 1 * 1000;	// in milliseconds
 int angle, currentTimeZone, angleOffset;
 float coords[5][2];
 struct tm *t_m, *ptime; 
+
+
+
+static float f = 0.0f;
+static int counter = 0;
+
+
 
 double degreeToRadian(double degree) {
 	return degree * PI / 180;
@@ -232,7 +243,34 @@ void drawFollowingArrows() {
 }
 
 void display() {
+	// Start the Dear ImGui frame
+    ImGui_ImplOpenGL2_NewFrame();
+    ImGui_ImplGLUT_NewFrame();
+    ImGui::NewFrame();
+    ImGuiIO& io = ImGui::GetIO();
+
+    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+
+    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+
+    ImGui::SliderFloat("float", &f, 0.0f, 90.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+
+    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+        counter++;
+
+    ImGui::SameLine();
+    ImGui::Text("counter = %d", counter);
+
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+    ImGui::End();
+
+
+
+    ImGui::Render();
+	
 	glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
 	if(isButtonPressed)
 		drawFollowingArrows();
@@ -242,7 +280,10 @@ void display() {
 	drawNumbers();
 	glutSolidSphere(0.05, 10, 10); 		// Center Circle
 
-	glFlush();
+	// glFlush();
+
+    glutSwapBuffers();
+    glutPostRedisplay();
 }
 
 void ProcessNormalKeys(unsigned char key, int x, int y) {
@@ -306,9 +347,30 @@ int main(int argc, char **argv) {
 	glutInitWindowSize(W, H);
 	glutCreateWindow("Clock_GLUT");
 
-	Init();
 	glutDisplayFunc(display);
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+	
+    ImGui_ImplGLUT_Init();
+    ImGui_ImplOpenGL2_Init();
+	Init();
+	ImGui_ImplGLUT_InstallFuncs();
+
 	glutMainLoop();
+
+	// imgui cleanup
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplGLUT_Shutdown();
+    ImGui::DestroyContext();
+
 	return 0;
 }
 
