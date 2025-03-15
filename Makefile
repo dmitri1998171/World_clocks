@@ -9,7 +9,7 @@ OBJS := $(addprefix obj/, $(OBJS))
 UNAME_S := $(shell uname -s)
 
 CXX = g++
-CXXFLAGS = -std=c++11 -Iinclude/imgui-headers
+CXXFLAGS = -std=c++11 -Iinclude -Iinclude/imgui-headers
 CXXFLAGS += -g -Wall -Wformat
 LIBS =
 
