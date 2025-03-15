@@ -12,8 +12,8 @@
 #define DEGREES_PER_MINUTE 6
 #define DEGREES_PER_HOUR 30
 #define PI 3.141592
-#define W 300
-#define H W
+#define W 600
+#define H 300
 
 #define MSK 3
 #define SRT 4
@@ -34,8 +34,7 @@ struct tm *t_m, *ptime;
 
 static float f = 0.0f;
 static int counter = 0;
-
-
+float x_offset = -1;
 
 double degreeToRadian(double degree) {
 	return degree * PI / 180;
@@ -85,46 +84,62 @@ void calcArrowPos(int x, int y) {
 
 void drawNumbers() {
 	glPushMatrix();
-
+	
 	glLoadIdentity();
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glColor3f(0.0, 0.0, 0.0);
 
 	glRectf(0.025,0.75,-0.025,0.6);		// 12
 
 	glRotatef(30.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 1
-	glLoadIdentity();
 
+	glLoadIdentity();
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRotatef(60.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 2
+	
 	glLoadIdentity();
-
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRectf(-0.75,0.025,-0.6,-0.025);	// 3
 
 	glRotatef(120.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 4
-	glLoadIdentity();
 
+	glLoadIdentity();
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRotatef(150.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 5
-	glLoadIdentity();  
 
+	glLoadIdentity();  
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRectf(0.025,-0.75,-0.025,-0.6);	// 6
 
 	glRotatef(210.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 7
-	glLoadIdentity();
 
+	glLoadIdentity();
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRotatef(240.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 8
-	glLoadIdentity();
 
+	glLoadIdentity();
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRectf(0.75,0.025,0.6,-0.025);		// 9
 
 	glRotatef(-60.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 10
-	glLoadIdentity();
 
+	glLoadIdentity();
+	glScalef(0.5, 1, 1);
+	glTranslatef(x_offset, 0, 0);
 	glRotatef(-30.0,0.0,0.0,-1.0);
 	glRectf(0.025,0.75,-0.025,0.6);		// 11
 	glLoadIdentity();
@@ -272,18 +287,33 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 
-	if(isButtonPressed)
-		drawFollowingArrows();
-	else 
-		drawArrows();
+	glPushMatrix();
+		glScalef(0.5, 1, 1);
+		glTranslatef(x_offset, 0, 0);
 
-	drawNumbers();
-	glutSolidSphere(0.05, 10, 10); 		// Center Circle
-
-	// glFlush();
+		if(isButtonPressed)
+			drawFollowingArrows();
+		else 
+			drawArrows();
+			
+		drawNumbers();
+		glutSolidSphere(0.05, 10, 10); 		// Center Circle
+	glPopMatrix();
 
     glutSwapBuffers();
     glutPostRedisplay();
+}
+
+void on_resize(int w, int h) {
+    int win_width = w;
+    int win_height = h;
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-w / 2, w / 2, -h / 2, h / 2, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    display(); // refresh window.
 }
 
 void ProcessNormalKeys(unsigned char key, int x, int y) {
@@ -348,6 +378,7 @@ int main(int argc, char **argv) {
 	glutCreateWindow("Clock_GLUT");
 
 	glutDisplayFunc(display);
+	glutReshapeFunc(on_resize);
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
