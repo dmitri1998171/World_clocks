@@ -1,6 +1,7 @@
 #define GL_SILENCE_DEPRECATION
 
 #include <iostream>
+#include <map>
 #include <stdio.h>
 #include <ctime>
 #include <GLUT/glut.h>
@@ -23,6 +24,20 @@
 #define DRAW_SEC_ARROW 0
 
 using namespace std;
+
+static vector<pair<string, bool>> timezones{
+    {"Kaliningrad (MSK-1)", false},
+    {"Moscow (MSK)", true},
+    {"Samara (MSK+1)", false},
+    {"Yekaterinburg (MSK+2)", false},
+    {"Omsk (MSK+3)", false},
+    {"Krasnoyarsk (MSK+4)", false},
+    {"Irkutsk (MSK+5)", false},
+    {"Yakutsk (MSK+6)", false},
+    {"Vladivostok (MSK+7)", false},
+    {"Magadan (MSK+8)", false},
+    {"Kamchatka (MSK+9)", false},
+};
 
 bool isButtonPressed = false, isSingleArrowState = false;
 int timer_var = 1 * 1000;	// in milliseconds

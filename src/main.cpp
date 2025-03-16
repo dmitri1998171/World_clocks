@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
 	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
 	glutInitWindowSize(W, H);
 	glutCreateWindow("Clock_GLUT");
+	glutPositionWindow(1500, 300);
 
 	glutDisplayFunc(display);
 	glutReshapeFunc(on_resize);

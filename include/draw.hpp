@@ -1,5 +1,23 @@
 #include "header.hpp"
 
+void renderColorfulCheckbox(const char* label, bool* v, ImVec4 color) {
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4 originalCheckMark = style.Colors[ImGuiCol_CheckMark];              // Сохраняем оригинальные цвета
+    style.Colors[ImGuiCol_CheckMark] = color;                                 // Новый цвет галочки
+    ImGui::Checkbox(label, v);
+    style.Colors[ImGuiCol_CheckMark] = originalCheckMark;                     // Возвращаем оригинальные цвета
+}
+
+void timezonesMultiselect() {
+    for (int i = 0; i < timezones.size(); i++) {
+        // Генерция цвета на основе индекса
+        float hue = (float)i / timezones.size();
+        ImVec4 color = ImColor::HSV(hue, 0.7f, 0.7f);
+
+        renderColorfulCheckbox(timezones[i].first.c_str(), &timezones[i].second, ImVec4(color.x, color.y, color.z, 1));
+    }
+}
+
 void UI() {
 	// Start the Dear ImGui frame
     ImGui_ImplOpenGL2_NewFrame();
@@ -8,21 +26,20 @@ void UI() {
     ImGuiIO& io = ImGui::GetIO();
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoScrollbar;        // Убрать полосу прокрутки
+    window_flags |= ImGuiWindowFlags_NoMove;             // Запретить перемещение окна
+    window_flags |= ImGuiWindowFlags_NoResize;           // Запретить изменение размера окна
+    window_flags |= ImGuiWindowFlags_NoCollapse;         // Запретить сворачивание окна
+    window_flags |= ImGuiWindowFlags_NoSavedSettings;    // Не сохранять настройки окна
 
-    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+    ImGui::SetNextWindowPos(ImVec2(W / 2, 0), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(W / 2, H), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Timezones", nullptr, window_flags);                          // Create a window called "Hello, world!" and append into it.
 
-    ImGui::SliderFloat("float", &f, 0.0f, 90.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+    timezonesMultiselect();    
 
-    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
-
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
-
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::End();
-
     ImGui::Render();
 }
 
