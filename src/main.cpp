@@ -10,11 +10,7 @@ void display() {
 		glScalef(0.5, 1, 1);
 		glTranslatef(x_offset, 0, 0);
 
-		if(isButtonPressed)
-			drawFollowingArrows();
-		else 
-			drawArrows();
-			
+		drawArrows();
 		drawNumbers();
 		glutSolidSphere(0.05, 10, 10); 		// Center Circle
 	glPopMatrix();
@@ -81,12 +77,11 @@ int main(int argc, char **argv) {
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
 	
     ImGui_ImplGLUT_Init();
     ImGui_ImplOpenGL2_Init();
-	Init();
 	ImGui_ImplGLUT_InstallFuncs();
+	Init();
 
 	glutMainLoop();
 

@@ -12,9 +12,9 @@ void timezonesMultiselect() {
     for (int i = 0; i < timezones.size(); i++) {
         // Генерция цвета на основе индекса
         float hue = (float)i / timezones.size();
-        ImVec4 color = ImColor::HSV(hue, 0.7f, 0.7f);
+        timezones[i].color = ImColor::HSV(hue, 0.7f, 0.7f);
 
-        renderColorfulCheckbox(timezones[i].first.c_str(), &timezones[i].second, ImVec4(color.x, color.y, color.z, 1));
+		renderColorfulCheckbox(timezones[i].name.c_str(), &timezones[i].selected, timezones[i].color);
     }
 }
 
@@ -115,6 +115,24 @@ void drawNumbers() {
 	glPopMatrix();
 }
 
+void drawConcreteArrow(string name) {
+	TimezoneInfo value = getTimezoneByKey(name);
+
+	if(value.selected) {
+		glColor3f(value.color.x, value.color.y, value.color.z);
+		glPushMatrix();
+
+		if(isButtonPressed) {
+			renderBitmapString(value.coords[0] + ARROW_NAME_OFFSET, value.coords[1] + ARROW_NAME_OFFSET, GLUT_BITMAP_HELVETICA_10, (char*)value.shortFormName.c_str());
+			glRotatef(angle + DEGREES_PER_HOUR * (value.mskOffset - currentTimeZone), 0.0, 0.0, -1.0);
+		} else 
+			glRotatef(DEGREES_PER_HOUR * (ptime->tm_hour + value.mskOffset) + angleOffset, 0.0, 0.0, -1.0);
+
+		glRectf(-0.025, 0.375, 0.025, 0.0);
+		glPopMatrix();
+	}
+}
+
 void drawArrows() {
 	#if DRAW_SEC_ARROW
 		// Second Arrow
@@ -133,94 +151,20 @@ void drawArrows() {
 	glPopMatrix();	
 
 	// Hour Arrow (local)
-	glPushMatrix();
-	glRotatef((DEGREES_PER_HOUR * t_m->tm_hour) + angleOffset, 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.375, 0.025, 0.0);
-	glPopMatrix();
+	// glPushMatrix();
+	// glRotatef((DEGREES_PER_HOUR * t_m->tm_hour) + angleOffset, 0.0, 0.0, -1.0);
+	// glRectf(-0.025, 0.375, 0.025, 0.0);
+	// glPopMatrix();
 
-	if( ! isSingleArrowState) {
-		// Hour Arrow (MSK)
-		glColor3f(1.0, 0.0, 0.0);
-		glPushMatrix();
-		glRotatef(DEGREES_PER_HOUR * (ptime->tm_hour + MSK) + angleOffset, 0.0, 0.0, -1.0);
-		glRectf(-0.025, 0.375, 0.025, 0.0);
-		glPopMatrix();
-
-		// Hour Arrow (SRT)
-		glColor3f(1.0, 0.0, 1.0);
-		glPushMatrix();
-		glRotatef(DEGREES_PER_HOUR * (ptime->tm_hour + SRT) + angleOffset, 0.0, 0.0, -1.0);
-		glRectf(-0.025, 0.375, 0.025, 0.0);
-		glPopMatrix();
-
-		// Hour Arrow (NSK)
-		glColor3f(0.0, 0.0, 1.0);
-		glPushMatrix();
-		glRotatef(DEGREES_PER_HOUR * (ptime->tm_hour + NSK) + angleOffset, 0.0, 0.0, -1.0);
-		glRectf(-0.025, 0.375, 0.025, 0.0);
-		glPopMatrix();
-
-		// Hour Arrow (CHT)
-		glColor3f(0.0, 1.0, 0.0);
-		glPushMatrix();
-		glRotatef(DEGREES_PER_HOUR * (ptime->tm_hour + CHT) + angleOffset, 0.0, 0.0, -1.0);
-		glRectf(-0.025, 0.375, 0.025, 0.0);
-		glPopMatrix();
-	}
-}
-
-void drawFollowingArrows() {
-	#if DRAW_SEC_ARROW
-		// Second Arrow
-		glColor3f(1.0, 0.0, 0.0);
-		glPushMatrix();
-		glRotatef(DEGREES_PER_MINUTE * t_m->tm_sec, 0.0, 0.0, -1.0);
-		glRectf(-0.025, 0.6, 0.005, 0.0);
-		glPopMatrix();
-	#endif
-	
-	// Minute Arrow
-	glColor3f(0.0, 0.0, 0.0);
-	glPushMatrix();
-	glRotatef(DEGREES_PER_MINUTE * t_m->tm_min, 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.57, 0.025, 0.0);
-	glPopMatrix();
-
-	// Hour Arrow (local)
-	glPushMatrix();
-	glRotatef(angle, 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.375, 0.025, 0.0);
-	glPopMatrix();
-
-	// Hour Arrow (MSK)
-	glColor3f(1.0, 0.0, 0.0);
-	renderBitmapString(coords[1][0] + 0.03, coords[1][1] + 0.03, GLUT_BITMAP_HELVETICA_10, "MSK");
-	glPushMatrix();
-	glRotatef(angle + (DEGREES_PER_HOUR * (MSK - currentTimeZone)), 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.375, 0.025, 0.0);
-	glPopMatrix();
-	
-	// Hour Arrow (SRT)
-	glColor3f(1.0, 0.0, 1.0);
-	renderBitmapString(coords[2][0] + 0.03, coords[2][1] + 0.03, GLUT_BITMAP_HELVETICA_10, "SRT");
-	glPushMatrix();
-	glRotatef(angle + (DEGREES_PER_HOUR * (SRT - currentTimeZone)), 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.375, 0.025, 0.0);
-	glPopMatrix();
-	
-	// Hour Arrow (NSK)
-	glColor3f(0.0, 0.0, 1.0);
-	renderBitmapString(coords[3][0] + 0.03, coords[3][1] + 0.03, GLUT_BITMAP_HELVETICA_10, "NSK");
-	glPushMatrix();
-	glRotatef(angle + (DEGREES_PER_HOUR * (NSK - currentTimeZone)), 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.375, 0.025, 0.0);
-	glPopMatrix();
-
-	// Hour Arrow (CHT)
-	glColor3f(0.0, 1.0, 0.0);
-	renderBitmapString(coords[4][0] + 0.03, coords[4][1] + 0.03, GLUT_BITMAP_HELVETICA_10, "CHT");
-	glPushMatrix();
-	glRotatef(angle + (DEGREES_PER_HOUR * (CHT - currentTimeZone)), 0.0, 0.0, -1.0);
-	glRectf(-0.025, 0.375, 0.025, 0.0);
-	glPopMatrix();
+	drawConcreteArrow("Kaliningrad (MSK-1)");
+	drawConcreteArrow("Moscow (MSK)");
+	drawConcreteArrow("Samara (MSK+1)");
+	drawConcreteArrow("Yekaterinburg (MSK+2)");
+	drawConcreteArrow("Omsk (MSK+3)");
+	drawConcreteArrow("Krasnoyarsk (MSK+4)");
+	drawConcreteArrow("Irkutsk (MSK+5)");
+	drawConcreteArrow("Chita (MSK+6)");
+	drawConcreteArrow("Vladivostok (MSK+7)");
+	drawConcreteArrow("Magadan (MSK+8)");
+	drawConcreteArrow("Kamchatka (MSK+9)");
 }
